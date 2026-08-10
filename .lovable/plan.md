@@ -39,6 +39,13 @@ Line 86 is `{semesters.map(...)}` — `semesters` no longer exists in the module
 
 The file starts with `// --- teacher.profile.tsx ---`, has an import, then commented-out `BEFORE:` code, then a bare top-level `<CardContent>` JSX expression. It has no `createFileRoute`, no `Route` export, and no component. TanStack's route generator expects a `Route` export from every file in `src/routes`, so this file breaks the route tree in addition to being unparseable as a module.
 
+### 3. Two smaller unrelated breakages in the same batch
+
+- `src/components/safe-avatar-image.tsx:83` — references a name `parsed` three times that is never declared in the file (`TS2304`).
+- `src/features/SuperAdmin/components/Topbar.tsx:137` — a JSX element is being passed where a `string` is expected (`TS2322`).
+
+A typecheck run confirms all of the above: ~90 errors, and every one of them is either "Module `@/features/Teacher/lib/academic-data` has no exported member X" (cascading from #1) or one of the two items in this section.
+
 ## Fix (not applied — analysis only, per your instruction)
 
 1. Restore `src/features/Teacher/lib/academic-data.ts` to its full prior version, then re-apply only the intended `parseCourseId` parse-from-the-right change and append the new `groupTeacherCourses` helper.

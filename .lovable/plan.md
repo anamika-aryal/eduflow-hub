@@ -1,13 +1,18 @@
-# Re-trigger GitHub sync and verify branch
+# Fix current type errors, then verify GitHub sync
 
-## Steps
+## Confirmed issues
 
-1. Open the project’s **+ menu → GitHub** integration and inspect the current connection.
-2. Confirm the connected repository is `eduflow-hub`.
-3. Re-trigger the project sync using the GitHub integration controls.
-4. Confirm the active branch matches the branch currently used by `eduflow-hub`.
-5. Report whether the repository and branch match, or identify the mismatch that needs correction.
+- `src/components/safe-avatar-image.tsx` declares `parsed` inside the URL-validation `try` block, but uses it afterward; the hostname checks therefore reference an out-of-scope variable.
+- `src/features/SuperAdmin/components/Topbar.tsx` passes a Lucide icon element as `SafeAvatarImage`’s `fallback`, while that prop currently accepts only a string.
 
-## Important limitation
+## Implementation steps
 
-GitHub project sync is managed through Lovable’s editor integration rather than the application code. If the integration card is not available or does not expose the repository/branch, the next step will be for you to open the GitHub repository and share the active branch name or reconnect the project from the **+ menu → GitHub** flow.
+1. Adjust the image URL validation so the parsed hostname is available to the later allow-list check without changing the validation behavior.
+2. Update the avatar fallback contract and rendering so both text fallbacks and icon fallbacks are supported safely.
+3. Run the project’s existing typecheck/build verification and confirm these two errors are gone.
+4. Open the project’s **+ menu → GitHub** integration, inspect the connected repository and branch, and re-trigger sync if the control is available.
+5. Confirm whether the connected repository is `eduflow-hub` and whether the active branch matches the branch currently selected in that repository; report any mismatch if the integration does not expose a sync/branch control.
+
+## Scope
+
+Only the two reported type errors and the requested GitHub sync verification will be addressed; no other feature behavior or source files will be changed.
